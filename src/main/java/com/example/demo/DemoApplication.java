@@ -16,6 +16,7 @@ import java.util.Set;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.core.env.Environment;
 
 @SpringBootApplication
 public class DemoApplication {
@@ -25,8 +26,11 @@ public class DemoApplication {
 	}
 
 	@Bean
-	CommandLineRunner initData(AuthorRepository authorRepository, CategoryRepository categoryRepository, BookRepository bookRepository, ReaderRepository readerRepository, JdbcTemplate jdbcTemplate) {
+	CommandLineRunner initData(AuthorRepository authorRepository, CategoryRepository categoryRepository, BookRepository bookRepository, ReaderRepository readerRepository, JdbcTemplate jdbcTemplate, Environment env) {
 		return args -> {
+			String[] activeProfiles = env.getActiveProfiles();
+			boolean isDevOrTest = java.util.Arrays.stream(activeProfiles).anyMatch(p -> p.equals("dev") || p.equals("test"));
+			if (!isDevOrTest) return;
 			if (authorRepository.count() == 0) {
 				authorRepository.save(new Author(null, "J.K. Rowling", null));
 				authorRepository.save(new Author(null, "George Orwell", null));

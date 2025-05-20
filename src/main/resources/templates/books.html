@@ -3,6 +3,22 @@
 <head>
     <title>Lista cărți</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        .form-section {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 24px 18px 18px 18px;
+            margin-bottom: 32px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+        }
+        .table th, .table td { vertical-align: middle; }
+        .alert { margin-top: 16px; }
+        @media (max-width: 768px) {
+            .form-section { padding: 12px; }
+            .table-responsive { font-size: 0.95em; }
+        }
+    </style>
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
@@ -22,6 +38,17 @@
 </nav>
 <div class="container mt-3">
     <h1 class="mb-4">Lista cărți</h1>
+
+    <!-- Mesaje de feedback -->
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <span th:text="${error}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <span th:text="${success}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
     <form class="row g-3 mb-4" method="get" th:action="@{/books}">
         <div class="col-md-4">
             <input type="text" class="form-control" name="title" placeholder="Caută după titlu" th:value="${filterTitle}">
@@ -39,14 +66,15 @@
             </select>
         </div>
         <div class="col-md-2">
-            <button type="submit" class="btn btn-outline-primary w-100">Filtrează</button>
+            <button type="submit" class="btn btn-outline-primary w-100"><i class="bi bi-funnel"></i> Filtrează</button>
         </div>
     </form>
+    <div class="table-responsive">
     <table class="table table-striped table-bordered align-middle">
         <thead class="table-dark">
         <tr>
             <th>
-                <a th:href="@{/books(sort='title',dir=${sort == 'title' && dir == 'asc' ? 'desc' : 'asc'},page=0,size=${bookPage.size},title=${filterTitle},authorId=${filterAuthorId},categoryId=${filterCategoryId})}" class="text-white text-decoration-none">
+                <a th:href="@{/books(sort='title',dir=${sort == 'title' && dir == 'asc' ? 'desc' : 'asc'},page=0,size=${bookPage.size},title=${filterTitle},authorId=${filterAuthorId},categoryId=${filterCategoryId})}" class="text-white text-decoration-none" title="Sortează după titlu">
                     Titlu
                     <span th:if="${sort == 'title'}">
                         <i th:class="${dir == 'asc' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'}"></i>
@@ -54,12 +82,12 @@
                 </a>
             </th>
             <th>
-                <a th:href="@{/books(sort='authors',dir=${sort == 'authors' && dir == 'asc' ? 'desc' : 'asc'},page=0,size=${bookPage.size},title=${filterTitle},authorId=${filterAuthorId},categoryId=${filterCategoryId})}" class="text-white text-decoration-none">
+                <a th:href="@{/books(sort='authors',dir=${sort == 'authors' && dir == 'asc' ? 'desc' : 'asc'},page=0,size=${bookPage.size},title=${filterTitle},authorId=${filterAuthorId},categoryId=${filterCategoryId})}" class="text-white text-decoration-none" title="Sortează după autor">
                     Autor
                 </a>
             </th>
             <th>
-                <a th:href="@{/books(sort='category',dir=${sort == 'category' && dir == 'asc' ? 'desc' : 'asc'},page=0,size=${bookPage.size},title=${filterTitle},authorId=${filterAuthorId},categoryId=${filterCategoryId})}" class="text-white text-decoration-none">
+                <a th:href="@{/books(sort='category',dir=${sort == 'category' && dir == 'asc' ? 'desc' : 'asc'},page=0,size=${bookPage.size},title=${filterTitle},authorId=${filterAuthorId},categoryId=${filterCategoryId})}" class="text-white text-decoration-none" title="Sortează după categorie">
                     Categorie
                 </a>
             </th>
@@ -79,32 +107,36 @@
             <td th:text="${book.category != null ? book.category.name : 'N/A'}"></td>
             <td>
                 <form th:action="@{/books/delete/{id}(id=${book.id})}" method="post" class="d-inline">
-                    <button type="submit" class="btn btn-danger btn-sm">Șterge</button>
+                    <button type="submit" class="btn btn-danger btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Șterge carte"><i class="bi bi-trash"></i></button>
                 </form>
-                <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editBookModal"
-                        th:attr="data-id=${book.id},data-title=${book.title},data-category=${book.category != null ? book.category.id : ''},data-authors=${book.authorIdsString}">
-                    Editează
+                <button type="button" class="btn btn-warning btn-sm"
+                    data-bs-toggle="modal" data-bs-target="#editBookModal"
+                    th:attr="data-id=${book.id},data-title=${book.title},data-category=${book.category != null ? book.category.id : ''},data-authors=${book.authorIdsString}"
+                    title="Editează carte">
+                    <i class="bi bi-pencil-square"></i>
                 </button>
             </td>
         </tr>
         </tbody>
     </table>
+    </div>
     <!-- Paginare -->
     <nav th:if="${bookPage.totalPages > 1}">
         <ul class="pagination justify-content-center">
             <li class="page-item" th:classappend="${bookPage.first} ? 'disabled'">
-                <a class="page-link" th:href="@{/books(page=${bookPage.number - 1},size=${bookPage.size},sort=${sort},dir=${dir},title=${filterTitle},authorId=${filterAuthorId},categoryId=${filterCategoryId})}">«</a>
+                <a class="page-link" th:href="@{/books(page=${bookPage.number - 1},size=${bookPage.size},sort=${sort},dir=${dir},title=${filterTitle},authorId=${filterAuthorId},categoryId=${filterCategoryId})}"><i class="bi bi-chevron-double-left"></i></a>
             </li>
             <li class="page-item" th:each="i : ${#numbers.sequence(0, bookPage.totalPages - 1)}" th:classappend="${i == bookPage.number} ? 'active'">
                 <a class="page-link" th:href="@{/books(page=${i},size=${bookPage.size},sort=${sort},dir=${dir},title=${filterTitle},authorId=${filterAuthorId},categoryId=${filterCategoryId})}" th:text="${i + 1}"></a>
             </li>
             <li class="page-item" th:classappend="${bookPage.last} ? 'disabled'">
-                <a class="page-link" th:href="@{/books(page=${bookPage.number + 1},size=${bookPage.size},sort=${sort},dir=${dir},title=${filterTitle},authorId=${filterAuthorId},categoryId=${filterCategoryId})}">»</a>
+                <a class="page-link" th:href="@{/books(page=${bookPage.number + 1},size=${bookPage.size},sort=${sort},dir=${dir},title=${filterTitle},authorId=${filterAuthorId},categoryId=${filterCategoryId})}"><i class="bi bi-chevron-double-right"></i></a>
             </li>
         </ul>
     </nav>
 
-    <h2 class="mt-5 mb-3">Adaugă carte</h2>
+    <div class="form-section">
+    <h2 class="mb-3">Adaugă carte</h2>
     <form th:action="@{/books}" th:object="${book}" method="post" class="row g-3">
         <div class="col-md-6">
             <input type="text" th:field="*{title}" placeholder="Titlu carte" class="form-control"/>
@@ -123,9 +155,10 @@
             </select>
         </div>
         <div class="col-12">
-            <button type="submit" class="btn btn-primary">Adaugă</button>
+            <button type="submit" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Adaugă</button>
         </div>
     </form>
+    </div>
 </div>
 
 <!-- Modal Editare Carte -->
@@ -158,7 +191,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anulează</button>
-                    <button type="submit" class="btn btn-primary">Salvează</button>
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-save"></i> Salvează</button>
                 </div>
             </form>
         </div>
@@ -182,6 +215,13 @@
         });
         document.getElementById('editBookCategory').value = categoryId;
         document.getElementById('editBookForm').action = '/books/edit/' + id;
+    });
+    // Tooltips Bootstrap
+    document.addEventListener('DOMContentLoaded', function () {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+            new bootstrap.Tooltip(tooltipTriggerEl);
+        });
     });
 </script>
 
