@@ -22,11 +22,23 @@
 </nav>
 <div class="container mt-3">
     <h1 class="mb-4">Împrumuturi</h1>
+
+    <!-- Alert Messages -->
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <span th:text="${error}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <span th:text="${success}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
     <h2 class="mb-3">Adaugă împrumut</h2>
     <form th:action="@{/loans}" th:object="${loan}" method="post" class="row g-3 mb-5">
         <div class="col-md-6">
             <label class="form-label">Carte</label>
             <select th:field="*{book}" class="form-select" required>
+                <option value="">Selectează o carte</option>
                 <option th:each="book : ${availableBooks}" th:value="${book.id}" th:text="${book.title}"></option>
             </select>
         </div>
@@ -54,9 +66,9 @@
         <tbody>
         <tr th:each="loan : ${loans}">
             <td th:text="${loan.book != null ? loan.book.title : 'N/A'}"></td>
-            <td th:text="${loan.loanDate}"></td>
-            <td th:text="${loan.estimatedReturnDate != null ? loan.estimatedReturnDate : '-'}"></td>
-            <td th:text="${loan.returnDate != null ? loan.returnDate : '-'}"></td>
+            <td th:text="${#temporals.format(loan.loanDate, 'dd-MM-yyyy')}"></td>
+            <td th:text="${loan.estimatedReturnDate != null ? #temporals.format(loan.estimatedReturnDate, 'dd-MM-yyyy') : '-'}"></td>
+            <td th:text="${loan.returnDate != null ? #temporals.format(loan.returnDate, 'dd-MM-yyyy') : '-'}"></td>
             <td>
                 <span th:if="${loan.returnDate == null}" class="badge bg-success">Activ</span>
                 <span th:if="${loan.returnDate != null}" class="badge bg-secondary">Returnat</span>
@@ -64,12 +76,13 @@
             <td>
                 <form th:if="${loan.returnDate == null}" th:action="@{/loans/return/{id}(id=${loan.id})}" method="post" class="d-inline">
                     <button type="submit" class="btn btn-warning btn-sm"
-                        th:disabled="${loan.estimatedReturnDate != null and !#strings.isEmpty(loan.estimatedReturnDate) and #dates.parse(loan.estimatedReturnDate, 'yyyy-MM-dd').isAfter(#dates.createNow())}"
-                        th:title="${loan.estimatedReturnDate != null and !#strings.isEmpty(loan.estimatedReturnDate) and #dates.parse(loan.estimatedReturnDate, 'yyyy-MM-dd').isAfter(#dates.createNow()) ? 'Nu poți returna înainte de data estimată' : ''}">
+                        th:disabled="${loan.estimatedReturnDate != null and loan.estimatedReturnDate.isAfter(T(java.time.LocalDate).now())}"
+                        th:title="${loan.estimatedReturnDate != null and loan.estimatedReturnDate.isAfter(T(java.time.LocalDate).now()) ? 'Nu poți returna înainte de data estimată' : ''}">
                         Returnează
                     </button>
                 </form>
-                <span th:if="${loan.returnDate == null and loan.estimatedReturnDate != null and !#strings.isEmpty(loan.estimatedReturnDate) and #dates.parse(loan.estimatedReturnDate, 'yyyy-MM-dd').isAfter(#dates.createNow())}" class="text-muted small">Nu poți returna înainte de data estimată</span>
+                <span th:if="${loan.returnDate == null and loan.estimatedReturnDate != null and loan.estimatedReturnDate.isAfter(T(java.time.LocalDate).now())}" 
+                      class="text-muted small">Nu poți returna înainte de data estimată</span>
             </td>
         </tr>
         </tbody>

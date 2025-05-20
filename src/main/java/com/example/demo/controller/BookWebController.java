@@ -20,7 +20,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import java.util.HashSet;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Controller
 public class BookWebController {
     private final BookService bookService;
@@ -42,6 +44,7 @@ public class BookWebController {
                            @RequestParam(defaultValue = "5") int size,
                            @RequestParam(defaultValue = "title") String sort,
                            @RequestParam(defaultValue = "asc") String dir) {
+        log.info("[BookWebController] listBooks called: title={}, authorId={}, categoryId={}, page={}, size={}, sort={}, dir={}", title, authorId, categoryId, page, size, sort, dir);
         Pageable pageable = PageRequest.of(page, size, dir.equals("asc") ? Sort.by(sort).ascending() : Sort.by(sort).descending());
         Page<Book> bookPage = bookService.findAll(pageable);
         var books = bookPage.getContent();
@@ -69,6 +72,7 @@ public class BookWebController {
 
     @PostMapping("/books")
     public String addBook(@Valid @ModelAttribute("book") Book book, BindingResult result, Model model) {
+        log.info("[BookWebController] addBook called for title='{}'", book.getTitle());
         if (result.hasErrors()) {
             model.addAttribute("books", bookService.findAll());
             model.addAttribute("authors", authorService.findAll());
@@ -95,12 +99,14 @@ public class BookWebController {
 
     @PostMapping("/books/delete/{id}")
     public String deleteBook(@PathVariable Long id) {
+        log.info("[BookWebController] deleteBook called for id={}", id);
         bookService.deleteById(id);
         return "redirect:/books";
     }
 
     @PostMapping("/books/edit/{id}")
     public String editBook(@PathVariable Long id, @ModelAttribute Book book) {
+        log.info("[BookWebController] editBook called for id={}", id);
         var existingOpt = bookService.findById(id);
         if (existingOpt.isPresent()) {
             var existing = existingOpt.get();

@@ -1,6 +1,7 @@
 package com.example.demo.model;
 
 import jakarta.persistence.*;
+import java.time.LocalDate;
 
 @Entity
 public class Loan {
@@ -17,9 +18,9 @@ public class Loan {
     @ManyToOne
     private Employee employee;
 
-    private String loanDate;
-    private String estimatedReturnDate;
-    private String returnDate;
+    private LocalDate loanDate;
+    private LocalDate estimatedReturnDate;
+    private LocalDate returnDate;
 
     public Loan() {}
 
@@ -55,27 +56,27 @@ public class Loan {
         this.employee = employee;
     }
 
-    public String getLoanDate() {
+    public LocalDate getLoanDate() {
         return loanDate;
     }
 
-    public void setLoanDate(String loanDate) {
+    public void setLoanDate(LocalDate loanDate) {
         this.loanDate = loanDate;
     }
 
-    public String getEstimatedReturnDate() {
+    public LocalDate getEstimatedReturnDate() {
         return estimatedReturnDate;
     }
 
-    public void setEstimatedReturnDate(String estimatedReturnDate) {
+    public void setEstimatedReturnDate(LocalDate estimatedReturnDate) {
         this.estimatedReturnDate = estimatedReturnDate;
     }
 
-    public String getReturnDate() {
+    public LocalDate getReturnDate() {
         return returnDate;
     }
 
-    public void setReturnDate(String returnDate) {
+    public void setReturnDate(LocalDate returnDate) {
         this.returnDate = returnDate;
     }
 } 
