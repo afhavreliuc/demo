@@ -138,21 +138,25 @@
     <div class="form-section">
     <h2 class="mb-3">Adaugă carte</h2>
     <form th:action="@{/books}" th:object="${book}" method="post" class="row g-3">
-        <div class="col-md-6">
+        <div class="col-12 mb-3">
+            <label class="form-label">Titlu carte</label>
             <input type="text" th:field="*{title}" placeholder="Titlu carte" class="form-control"/>
             <span th:if="${#fields.hasErrors('title')}" th:errors="*{title}" class="text-danger"></span>
         </div>
-        <div class="col-md-6">
-            <label class="form-label">Autor:</label>
-            <select th:field="*{authorIds}" multiple class="form-select">
-                <option th:each="author : ${authors}" th:value="${author.id}" th:text="${author.name}"></option>
-            </select>
-        </div>
-        <div class="col-md-6">
-            <label class="form-label">Categorie:</label>
-            <select th:field="*{categoryId}" class="form-select">
-                <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}"></option>
-            </select>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Autor</label>
+                <select th:field="*{authorIds}" multiple class="form-select" size="4">
+                    <option th:each="author : ${authors}" th:value="${author.id}" th:text="${author.name}"></option>
+                </select>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Categorie</label>
+                <select th:field="*{categoryId}" class="form-select">
+                    <option value="" disabled selected>Alege categorie</option>
+                    <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.name}"></option>
+                </select>
+            </div>
         </div>
         <div class="col-12">
             <button type="submit" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Adaugă</button>
