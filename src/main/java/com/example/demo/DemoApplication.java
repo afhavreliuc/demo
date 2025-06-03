@@ -58,7 +58,6 @@ public class DemoApplication {
 				}
 			}
 
-			// Adaugă user demo pentru Spring Security JDBC
 			try {
 				jdbcTemplate.execute("CREATE TABLE IF NOT EXISTS users (username VARCHAR(50) PRIMARY KEY, password VARCHAR(100), enabled BOOLEAN)");
 				jdbcTemplate.execute("CREATE TABLE IF NOT EXISTS authorities (username VARCHAR(50), authority VARCHAR(50))");
